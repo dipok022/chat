@@ -3,14 +3,14 @@ import userModel from "../model/user.model.js";
 
 const router = express.Router();
 
-// all users
-router.get("/users", (req, res) => {
-  res.send("Hello, World!");
-});
-
-// single user
-router.get("/user/:id", (req, res) => {
-  res.send(`Hello, World! User with id ${req.params.id}`);
+// get all users
+router.get("/users", async (req, res) => {
+  try {
+    const users = await userModel.find({});
+    res.status(200).send(users);
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
 });
 
 // register
@@ -32,7 +32,7 @@ router.post("/register", async (req, res) => {
     }
     const user = new userModel(req.body);
     await user.save();
-    res.status(201).send({ message: "user created successfully", user });
+    res.status(201).send({ message: "Singup successfully", user });
   } catch (error) {
     res.status(400).send(error.message);
   }
@@ -43,14 +43,19 @@ router.post("/login", (req, res) => {
   res.send("User logged in!");
 });
 
-// PUT
-router.put("/user/:id", (req, res) => {
-  res.send(`Resource with id ${req.params.id} updated!`);
-});
-
 // DELETE
-router.delete("/user/:id", (req, res) => {
-  res.send(`Resource with id ${req.params.id} deleted!`);
+router.delete("/user/:id", async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const deletedUser = await userModel.findByIdAndDelete(id);
+    if (!deletedUser) {
+      return res.status(404).send({ error: "Resource not found" });
+    }
+    res.status(200).send({ message: "Deleted successfully" });
+  } catch (error) {
+    res.status(500).send({ error: "Internal Server Error" });
+  }
 });
 
 export default router;
