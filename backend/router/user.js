@@ -1,4 +1,5 @@
 import express from "express";
+import userModel from "../model/user.model.js";
 
 const router = express.Router();
 
@@ -13,8 +14,19 @@ router.get("/user/:id", (req, res) => {
 });
 
 // register
-router.post("/register", (req, res) => {
-  res.send("New resource created!");
+router.post("/register", async (req, res) => {
+  try {
+    const userExist = await userModel.findOne({ email: req.body.email });
+    if (userExist)
+      return res.status(400).send({ message: "User already exists" });
+    const user = new userModel(req.body);
+    await user.save();
+    res.status(201).send({ message: "user created successfully", user });
+  } catch (error) {
+    console.log("error", error);
+
+    res.status(400).send(error.message);
+  }
 });
 
 // login
