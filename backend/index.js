@@ -1,6 +1,7 @@
 import express from "express";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
+import userRouter from "./router/user.js";
 
 // middleware
 const app = express();
@@ -11,6 +12,10 @@ dotenv.config();
 mongoose.connect(process.env.MONGODB_URI).then(() => {
   console.log("Connected to MongoDB");
 });
+
+// routes
+app.use("/api/v1", userRouter);
+
 // listen server port
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
