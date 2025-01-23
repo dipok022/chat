@@ -1,4 +1,4 @@
-import userModel from "../models/user.model";
+import userModel from "../models/user.model.js";
 
 const getUsers = async (req, res) => {
   try {
@@ -9,7 +9,20 @@ const getUsers = async (req, res) => {
   }
 };
 
-const findUser = async (req, res) => {};
+const findUser = async (req, res) => {
+  try {
+    if (!req.params.userId) {
+      return res.status(400).send({ message: "Invalid user ID" });
+    }
+    const user = await userModel.findById(req.params.userId);
+    if (!user) {
+      return res.status(404).send({ error: "Resource not found" });
+    }
+    res.status(200).send(user);
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
+};
 
 const createUser = async (req, res) => {
   const passRegex =
@@ -29,19 +42,49 @@ const createUser = async (req, res) => {
     }
     const user = new userModel(req.body);
     await user.save();
-    res.status(201).send({ message: "Singup successfully", user });
+    res.status(201).send({ user, message: "Singup successfully" });
   } catch (error) {
     res.status(400).send(error.message);
   }
 };
 
-const editUser = async (req, res) => {};
+const loginUser = async (req, res) => {
+  try {
+    const user = await userModel.findOne({ email: req.body.email });
+    if (!user) return res.status(401).send({ message: "Invalid user!" });
 
-const deleteUser = async (req, res) => {
-  const { id } = req.params;
+    const isMatch = (await user.password) !== req.body.password;
+    if (isMatch) return res.status(401).send({ message: "Wrong password!" });
+
+    res.send({ user, message: "Login successful" });
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
+};
+
+const editUser = async (req, res) => {
+  const { userId } = req.params;
+  const updateUser = req.body;
 
   try {
-    const deletedUser = await userModel.findByIdAndDelete(id);
+    const updatedUser = await userModel.findByIdAndUpdate(userId, updateUser, {
+      new: true,
+    });
+    if (!updatedUser) {
+      return res.status(404).send({ error: "Resource not found" });
+    }
+    res.status(200).send({ message: "Updated successfully", updatedUser });
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
+};
+
+const deleteUser = async (req, res) => {
+  const { userId } = req.params;
+  console.log(userId);
+
+  try {
+    const deletedUser = await userModel.findByIdAndDelete(userId);
     if (!deletedUser) {
       return res.status(404).send({ error: "Resource not found" });
     }
@@ -51,4 +94,4 @@ const deleteUser = async (req, res) => {
   }
 };
 
-export { getUsers, findUser, createUser, editUser, deleteUser };
+export { getUsers, findUser, createUser, loginUser, editUser, deleteUser };
