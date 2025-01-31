@@ -1,6 +1,6 @@
 import express from "express";
 import dotenv from "dotenv";
-import userRouter from "./routers/user.router.js";
+import userRouter from "./routers/user_router.js";
 
 // middleware
 const app = express();
