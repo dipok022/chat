@@ -11,6 +11,7 @@ const userSchema = new mongoose.Schema(
       required: true,
       unique: true,
       lowercase: true,
+      // metch: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
     },
     avatar: {
       type: String,
@@ -25,7 +26,9 @@ const userSchema = new mongoose.Schema(
     password: {
       type: String,
       required: true,
-      minlength: 8,
+      // minlength: 8,
+      // metch:
+      //   /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
     },
   },
   { timestamps: true }
